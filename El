@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+<title>E-Légumes Faso</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:#f4f4f4;
+}
+
+header{
+background:#2e7d32;
+color:white;
+display:flex;
+justify-content:space-between;
+padding:15px;
+align-items:center;
+}
+
+nav a{
+color:white;
+margin:10px;
+text-decoration:none;
+}
+
+.hero{
+background:linear-gradient(#2e7d32,#4caf50);
+color:white;
+text-align:center;
+padding:60px;
+}
+
+.hero h1{
+font-size:40px;
+}
+
+.search{
+text-align:center;
+margin:20px;
+}
+
+.search input{
+padding:10px;
+width:250px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+padding:20px;
+}
+
+.produit{
+background:white;
+padding:15px;
+border-radius:10px;
+text-align:center;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.produit img{
+width:100%;
+border-radius:10px;
+}
+
+button{
+background:#2e7d32;
+color:white;
+border:none;
+padding:10px;
+margin-top:10px;
+cursor:pointer;
+border-radius:5px;
+}
+
+button:hover{
+background:#1b5e20;
+}
+
+.panier{
+position:fixed;
+right:0;
+top:80px;
+background:white;
+width:300px;
+height:400px;
+overflow:auto;
+box-shadow:-2px 0 10px rgba(0,0,0,0.2);
+padding:10px;
+}
+
+.panier h3{
+text-align:center;
+}
+
+.item{
+display:flex;
+justify-content:space-between;
+margin:10px 0;
+}
+
+.total{
+font-weight:bold;
+text-align:center;
+margin-top:10px;
+}
+
+.avis{
+background:white;
+margin:20px;
+padding:20px;
+border-radius:10px;
+}
+
+form{
+display:flex;
+flex-direction:column;
+gap:10px;
+padding:20px;
+}
+
+input{
+padding:10px;
+}
+
+footer{
+background:#333;
+color:white;
+text-align:center;
+padding:20px;
+margin-top:30px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h2>E-Légumes Faso</h2>
+
+<nav>
+
+<a href="#">Accueil</a>
+<a href="#produits">Produits</a>
+<a href="#avis">Avis</a>
+<a href="#commande">Commander</a>
+
+</nav>
+
+<div>
+🛒 <span id="count">0</span>
+</div>
+
+</header>
+
+<section class="hero">
+
+<h1>Légumes frais livrés à Ouagadougou</h1>
+
+<p>Commandez facilement en ligne</p>
+
+</section>
+
+<div class="search">
+
+<input type="text" id="search" placeholder="Rechercher un légume...">
+
+</div>
+
+<section id="produits">
+
+<div class="grid" id="liste"></div>
+
+</section>
+
+<div class="panier">
+
+<h3>Votre panier</h3>
+
+<div id="panier-items"></div>
+
+<div class="total">
+Total : <span id="total">0</span> FCFA
+</div>
+
+<button onclick="commander()">Commander</button>
+
+</div>
+
+<section id="avis">
+
+<h2 style="text-align:center">Avis Clients</h2>
+
+<div class="avis">
+
+⭐⭐⭐⭐⭐  
+Produits très frais !
+
+</div>
+
+<div class="avis">
+
+⭐⭐⭐⭐  
+Livraison rapide.
+
+</div>
+
+</section>
+
+<section id="commande">
+
+<h2 style="text-align:center">Commande</h2>
+
+<form>
+
+<input placeholder="Nom" required>
+<input placeholder="Téléphone" required>
+<input placeholder="Adresse" required>
+
+<button type="submit">Envoyer</button>
+
+</form>
+
+</section>
+
+<footer>
+
+© 2026 E-Légumes Faso
+
+</footer>
+
+<script>
+
+let produits=[
+
+{nom:"Tomates",prix:500,img:"https://images.unsplash.com/photo-1546094096-0df4bcaaa337"},
+{nom:"Oignons",prix:400,img:"https://images.unsplash.com/photo-1587049633312-d628ae50a8ae"},
+{nom:"Choux",prix:600,img:"https://images.unsplash.com/photo-1582515073490-dc9c1b0b6d4e"},
+{nom:"Carottes",prix:450,img:"https://images.unsplash.com/photo-1582515073490-dc9c1b0b6d4e"},
+{nom:"Piments",prix:300,img:"https://images.unsplash.com/photo-1604908176997-431c5e71e9f0"}
+
+]
+
+let panier=JSON.parse(localStorage.getItem("panier")) || []
+
+const liste=document.getElementById("liste")
+
+function afficherProduits(data){
+
+liste.innerHTML=""
+
+data.forEach(p=>{
+
+let div=document.createElement("div")
+
+div.className="produit"
+
+div.innerHTML=`
+
+<img src="${p.img}">
+<h3>${p.nom}</h3>
+<p>${p.prix} FCFA</p>
+
+<button onclick="ajouter('${p.nom}',${p.prix})">
+Ajouter
+</button>
+
+`
+
+liste.appendChild(div)
+
+})
+
+}
+
+afficherProduits(produits)
+
+function ajouter(nom,prix){
+
+panier.push({nom,prix})
+
+localStorage.setItem("panier",JSON.stringify(panier))
+
+afficherPanier()
+
+}
+
+function afficherPanier(){
+
+let zone=document.getElementById("panier-items")
+
+zone.innerHTML=""
+
+let total=0
+
+panier.forEach((p,i)=>{
+
+total+=p.prix
+
+zone.innerHTML+=`
+
+<div class="item">
+
+${p.nom}
+
+<button onclick="supprimer(${i})">X</button>
+
+</div>
+
+`
+
+})
+
+document.getElementById("total").innerText=total
+
+document.getElementById("count").innerText=panier.length
+
+}
+
+function supprimer(i){
+
+panier.splice(i,1)
+
+localStorage.setItem("panier",JSON.stringify(panier))
+
+afficherPanier()
+
+}
+
+function commander(){
+
+let message="Commande : "
+
+panier.forEach(p=>{
+
+message+=p.nom+" "
+
+})
+
+window.open("https://wa.me/226XXXXXXXX?text="+message)
+
+}
+
+afficherPanier()
+
+document.getElementById("search").addEventListener("input",function(){
+
+let mot=this.value.toLowerCase()
+
+let filtre=produits.filter(p=>p.nom.toLowerCase().includes(mot))
+
+afficherProduits(filtre)
+
+})
+
+</script>
+
+</body>
+
+</html>
